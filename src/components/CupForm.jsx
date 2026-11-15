@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { unitFor } from '../lib/data'
 import { newRow, sizeLabel } from '../lib/order'
 import { isCheckIng } from '../lib/checks'
+import IngredientPicker from './IngredientPicker'
 
 export default function CupForm({ data, checks, index, menu, cup, input, onChange }) {
   const names = useMemo(() => data.ingredients.map((i) => i.name).sort((a, b) => a.localeCompare(b, 'ko')), [data])
@@ -25,18 +26,12 @@ export default function CupForm({ data, checks, index, menu, cup, input, onChang
           const check = r.ingredient && (isCheckIng(r.ingredient, menu, checks) || unit === '-')
           return (
             <div className="row" key={r.key}>
-              <select
-                aria-label={`${i + 1}번째 재료`}
+              <IngredientPicker
+                label={`${i + 1}번째 재료`}
                 value={r.ingredient}
-                onChange={(e) => setRow(r.key, { ingredient: e.target.value, checked: true })}
-              >
-                <option value="">재료</option>
-                {names.map((n) => (
-                  <option key={n} value={n}>
-                    {n}
-                  </option>
-                ))}
-              </select>
+                options={names}
+                onChange={(v) => setRow(r.key, { ingredient: v, checked: true })}
+              />
               <div className="amount">
                 {check ? (
                   <label className="check-in">

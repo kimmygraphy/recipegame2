@@ -232,3 +232,25 @@ tr.is-hit td { background: #eef3fb; }
 .ing-name { flex: none; }
 .ing-blend { display: flex; align-items: center; gap: 8px; padding: 0 14px 12px 0; margin-top: -4px; font-size: 0.85rem; color: var(--muted); cursor: pointer; }
 .ing-blend input { width: 18px; height: 18px; min-height: 0; accent-color: var(--ink); }
+
+/* 검색 드롭다운 */
+.picker { position: relative; min-width: 0; }
+.picker-btn {
+  width: 100%; min-height: 44px; padding: 8px 32px 8px 10px; text-align: left; font: inherit; color: var(--ink);
+  border: 1.5px solid var(--counter-deep); border-radius: var(--radius-sm); background: var(--paper); cursor: pointer;
+  position: relative; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+}
+.picker-btn span { display: block; overflow: hidden; text-overflow: ellipsis; }
+.picker-btn.is-empty { color: var(--muted); }
+.picker-btn::after { content: ''; position: absolute; right: 12px; top: 50%; margin-top: -2px; border: 5px solid transparent; border-top-color: var(--muted); }
+.picker-pop {
+  position: absolute; z-index: 20; left: 0; right: 0; top: calc(100% + 4px); min-width: 220px;
+  background: var(--paper); border: 1.5px solid var(--counter-deep); border-radius: var(--radius-sm);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15); padding: 6px;
+}
+.picker-pop input { min-height: 40px; }
+.picker-list { list-style: none; margin: 6px 0 0; padding: 0; max-height: 260px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+.picker-list li { padding: 10px; border-radius: 6px; cursor: pointer; }
+.picker-list li.is-hi { background: #eef3fb; }
+.picker-list li.is-sel { font-weight: 700; }
+.picker-list .picker-empty { color: var(--muted); cursor: default; }
