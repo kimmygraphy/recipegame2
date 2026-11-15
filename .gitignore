@@ -1,0 +1,6 @@
+node_modules/
+dist/
+# 실제 레시피 데이터는 사내 자료 → 절대 커밋하지 않음
+*.xlsx
+recipes.json
+data/
