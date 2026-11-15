@@ -149,7 +149,7 @@ export default function RecipeBook({ data, checks, onChecksChange, onChecksReset
                             <tr key={i} className={hit && it.ingredient === hit ? 'is-hit' : ''}>
                               <td>
                                 <span>{it.label}</span>
-                                {isCheckItem(it, checks) && <span className="check-tag">체크</span>}
+                                {isCheckItem(it, m, checks) && <span className="check-tag">체크</span>}
                                 {it.ref && <span className="muted small">참고 {it.ref}</span>}
                               </td>
                               {m.sizes.map((sz) => (

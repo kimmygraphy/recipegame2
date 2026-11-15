@@ -1,4 +1,4 @@
-import { groupOf, weightOf } from './settings.js'
+import { groupOf, weightOf, sizeModeOf } from './settings.js'
 
 const pick = (arr) => arr[Math.floor(Math.random() * arr.length)]
 let seq = 0
@@ -20,11 +20,18 @@ function pickMenu(data, settings) {
   return pick(pool[pool.length - 1].menus)
 }
 
+// 기본 사이즈 = 메뉴 사이즈 중 첫 번째(R → L → M 순, 에스프레소는 싱글)
+function pickSize(menu, settings) {
+  const { baseRate } = sizeModeOf(settings)
+  if (baseRate === null || menu.sizes.length === 1) return pick(menu.sizes)
+  return Math.random() < baseRate ? menu.sizes[0] : pick(menu.sizes.slice(1))
+}
+
 export function makeOrder(data, settings) {
   const count = 1 + Math.floor(Math.random() * 4) // 1~4잔
   const cups = Array.from({ length: count }, () => {
     const menu = pickMenu(data, settings)
-    return { menuId: menu.id, size: pick(menu.sizes) }
+    return { menuId: menu.id, size: pickSize(menu, settings) }
   })
   return { no: 100 + Math.floor(Math.random() * 900), cups }
 }

@@ -11,23 +11,30 @@ export default function IngredientStatus({ data, checks, onChange, onReset }) {
   const rows = useMemo(() => {
     const used = {}
     const units = {}
+    const inBlend = new Set()
     data.menus.forEach((m) =>
       m.items.forEach((it) => {
         ;(used[it.ingredient] ||= new Set()).add(m.name)
         if (it.unit !== '-') (units[it.ingredient] ||= new Set()).add(it.unit)
+        if (m.isBlended) inBlend.add(it.ingredient)
       })
     )
     return data.ingredients
-      .map((i) => ({ name: i.name, menus: [...(used[i.name] || [])], units: [...(units[i.name] || [])] }))
+      .map((i) => ({
+        name: i.name,
+        menus: [...(used[i.name] || [])],
+        units: [...(units[i.name] || [])],
+        inBlend: inBlend.has(i.name),
+      }))
       .sort((a, b) => a.name.localeCompare(b.name, 'ko'))
   }, [data])
 
   const q = norm(query)
-  const list = rows.filter((r) => (!q || norm(r.name).includes(q)) && (!onlyChecked || checks.has(r.name)))
+  const list = rows.filter((r) => (!q || norm(r.name).includes(q)) && (!onlyChecked || checks.check.has(r.name)))
 
-  const toggle = (name) => {
-    const next = new Set(checks)
-    next.has(name) ? next.delete(name) : next.add(name)
+  const toggle = (key, name) => {
+    const next = { check: new Set(checks.check), blend: new Set(checks.blend) }
+    next[key].has(name) ? next[key].delete(name) : next[key].add(name)
     onChange(next)
   }
 
@@ -45,27 +52,38 @@ export default function IngredientStatus({ data, checks, onChange, onReset }) {
           </label>
           <label className={`chip ${onlyChecked ? 'is-on' : ''}`}>
             <input type="radio" name="ing-filter" checked={onlyChecked} onChange={() => setOnlyChecked(true)} />
-            체크 재료 {checks.size}
+            체크 재료 {checks.check.size}
           </label>
         </div>
       </div>
 
       {!list.length && <p className="book-empty">찾는 재료가 없어요.</p>}
       <ul className="ing-list">
-        {list.map((r) => (
-          <li key={r.name} className="ing-row">
-            <label className="ing-check">
-              <input type="checkbox" checked={checks.has(r.name)} onChange={() => toggle(r.name)} aria-label={`${r.name} 체크로 채점`} />
-            </label>
-            <button className="ing-name" aria-expanded={open === r.name} onClick={() => setOpen(open === r.name ? null : r.name)}>
-              <span className="book-name">{r.name}</span>
-              <span className="book-sizes">
-                {r.units.join(', ') || '양 없음'} · 메뉴 {r.menus.length}개
-              </span>
-              {open === r.name && <span className="ing-menus">{r.menus.join(', ') || '쓰는 메뉴 없음'}</span>}
-            </button>
-          </li>
-        ))}
+        {list.map((r) => {
+          const on = checks.check.has(r.name)
+          return (
+            <li key={r.name} className="ing-row">
+              <label className="ing-check">
+                <input type="checkbox" checked={on} onChange={() => toggle('check', r.name)} aria-label={`${r.name} 체크로 채점`} />
+              </label>
+              <div className="ing-main">
+                <button className="ing-name" aria-expanded={open === r.name} onClick={() => setOpen(open === r.name ? null : r.name)}>
+                  <span className="book-name">{r.name}</span>
+                  <span className="book-sizes">
+                    {r.units.join(', ') || '양 없음'} · 메뉴 {r.menus.length}개
+                  </span>
+                  {open === r.name && <span className="ing-menus">{r.menus.join(', ') || '쓰는 메뉴 없음'}</span>}
+                </button>
+                {on && r.inBlend && (
+                  <label className="ing-blend">
+                    <input type="checkbox" checked={checks.blend.has(r.name)} onChange={() => toggle('blend', r.name)} />
+                    쉐이크·프라페는 양까지 채점
+                  </label>
+                )}
+              </div>
+            </li>
+          )
+        })}
       </ul>
 
       <div className="actions">

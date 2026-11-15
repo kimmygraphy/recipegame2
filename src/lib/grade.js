@@ -1,5 +1,5 @@
 import { formatAmount } from './data.js'
-import { isCheckItem } from './checks.js'
+import { isCheckIng, isCheckItem } from './checks.js'
 
 export function amountMatches(unit, expected, row) {
   if (unit === 'T/t') {
@@ -15,14 +15,14 @@ export function rowAmountText(unit, row) {
 }
 
 // 입력한 줄 중 채점에 들어가는 것: 재료를 골랐고, 체크 재료라면 체크를 풀지 않은 줄
-const counts = (r, checks) => r.ingredient && (!checks.has(r.ingredient) || r.checked !== false)
+const counts = (r, menu, checks) => r.ingredient && (!isCheckIng(r.ingredient, menu, checks) || r.checked !== false)
 
 // 재료 채점: 순서 무관, 같은 재료가 여러 번 나오면(①②) 양이 맞는 것부터 짝지음
 export function gradeCup(menu, size, rows, checks) {
   const expected = menu.items.filter((i) => i.gradeSizes.includes(size))
   const notGraded = menu.items.filter((i) => !i.gradeSizes.includes(size))
   const ignored = new Set(notGraded.map((i) => i.ingredient))
-  const filled = rows.filter((r) => counts(r, checks))
+  const filled = rows.filter((r) => counts(r, menu, checks))
 
   const userBy = {}
   filled.forEach((r) => (userBy[r.ingredient] ||= []).push(r))
@@ -33,7 +33,7 @@ export function gradeCup(menu, size, rows, checks) {
   const extras = []
   for (const [ing, exps] of Object.entries(expBy)) {
     const pool = [...(userBy[ing] || [])]
-    const pairs = exps.map((e) => ({ e, row: null, check: isCheckItem(e, checks) }))
+    const pairs = exps.map((e) => ({ e, row: null, check: isCheckItem(e, menu, checks) }))
     pairs.forEach((p) => {
       if (p.check) return
       const i = pool.findIndex((r) => amountMatches(p.e.unit, p.e.amounts[size], r))

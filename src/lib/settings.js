@@ -3,6 +3,14 @@ const KEY = 'recipe-trainer:settings:v1'
 export const WEIGHTS = [0, 1, 2, 3]
 export const DEFAULT_GROUP = '기타 음료'
 
+// 사이즈 출제: 기본 사이즈(메뉴의 가장 작은 사이즈)가 나올 확률
+export const SIZE_MODES = [
+  { id: 'base', label: '기본만', baseRate: 1 },
+  { id: 'mostly', label: '기본 위주', baseRate: 0.9 },
+  { id: 'even', label: '고르게', baseRate: null },
+]
+export const sizeModeOf = (settings) => SIZE_MODES.find((m) => m.id === settings?.sizeMode) || SIZE_MODES[1]
+
 export const groupOf = (menu) => menu.group || DEFAULT_GROUP
 
 export function groupsOf(data) {

@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { unitFor } from '../lib/data'
 import { newRow, sizeLabel } from '../lib/order'
+import { isCheckIng } from '../lib/checks'
 
 export default function CupForm({ data, checks, index, menu, cup, input, onChange }) {
   const names = useMemo(() => data.ingredients.map((i) => i.name).sort((a, b) => a.localeCompare(b, 'ko')), [data])
@@ -21,7 +22,7 @@ export default function CupForm({ data, checks, index, menu, cup, input, onChang
       <div className="rows">
         {rows.map((r, i) => {
           const unit = r.ingredient ? unitFor(data, r.ingredient, menu) : null
-          const check = r.ingredient && (checks.has(r.ingredient) || unit === '-')
+          const check = r.ingredient && (isCheckIng(r.ingredient, menu, checks) || unit === '-')
           return (
             <div className="row" key={r.key}>
               <select
