@@ -1,0 +1,47 @@
+name: Deploy to GitHub Pages
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+concurrency:
+  group: pages
+  cancel-in-progress: false
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      # 레포에 zip을 올리면 여기서 풀어서 커밋하고 zip은 지움
+      - name: Unzip uploaded project
+        run: |
+          set -e
+          z=$(ls *.zip 2>/dev/null | head -1)
+          [ -z "$z" ] && { echo "zip 없음 — 건너뜀"; exit 0; }
+          rm -rf /tmp/u && mkdir -p /tmp/u && unzip -q -o "$z" -d /tmp/u
+          src=/tmp/u
+          if [ "$(ls -A /tmp/u | wc -l)" -eq 1 ] && [ -d "/tmp/u/$(ls -A /tmp/u)" ]; then src="/tmp/u/$(ls -A /tmp/u)"; fi
+          rm -rf "$src/.github" "$src/node_modules" "$src/dist"
+          cp -a "$src"/. .
+          git rm -q "$z"
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git add -A
+          git commit -m "Unzip $z" && git push || echo "바뀐 파일 없음"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm install
+      - run: npm run build
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+      - id: deployment
+        uses: actions/deploy-pages@v4
