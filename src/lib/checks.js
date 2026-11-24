@@ -41,3 +41,11 @@ export function resetChecks() {
 export const isCheckIng = (name, menu, c) => c.check.has(name) && !(menu?.isBlended && c.blend.has(name))
 // 레시피 줄 단위: 양 표기가 없는 줄은 항상 체크
 export const isCheckItem = (item, menu, c) => item.presenceOnly || isCheckIng(item.ingredient, menu, c)
+// 입력 줄 단위: 재료 설정상 체크이거나, 이 메뉴 레시피에서 '넣었는지만' 보는 재료
+//  같은 재료가 '양 채점 줄'과 '넣음만 줄'로 섞여 있으면(예: 얼음①140g + 얼음② 넣음) 양 칸을 보여주고,
+//  양을 비운 줄을 '넣음'으로 채점함
+export const isCheckRow = (name, menu, c) => {
+  if (isCheckIng(name, menu, c)) return true
+  const same = menu?.items.filter((i) => i.ingredient === name) || []
+  return same.length > 0 && same.every((i) => i.presenceOnly)
+}

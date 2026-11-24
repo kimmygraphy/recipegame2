@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { unitFor } from '../lib/data'
 import { newRow, sizeLabel } from '../lib/order'
-import { isCheckIng } from '../lib/checks'
+import { isCheckRow } from '../lib/checks'
 import IngredientPicker from './IngredientPicker'
 
 export default function CupForm({ data, checks, index, menu, cup, input, onChange }) {
@@ -23,7 +23,7 @@ export default function CupForm({ data, checks, index, menu, cup, input, onChang
       <div className="rows">
         {rows.map((r, i) => {
           const unit = r.ingredient ? unitFor(data, r.ingredient, menu) : null
-          const check = r.ingredient && (isCheckIng(r.ingredient, menu, checks) || unit === '-')
+          const check = r.ingredient && (isCheckRow(r.ingredient, menu, checks) || unit === '-')
           return (
             <div className="row" key={r.key}>
               <IngredientPicker

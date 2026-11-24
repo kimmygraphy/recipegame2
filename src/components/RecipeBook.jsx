@@ -154,11 +154,11 @@ export default function RecipeBook({ data, checks, onChecksChange, onChecksReset
                               </td>
                               {m.sizes.map((sz) => (
                                 <td key={sz} className="num">
-                                  {it.presenceOnly
-                                    ? '넣기'
-                                    : it.amounts[sz] === undefined
-                                      ? '–'
-                                      : formatAmount(it.unit, it.amounts[sz])}
+                                  {it.amounts[sz] === undefined
+                                    ? it.presenceOnly
+                                      ? '넣기'
+                                      : '–'
+                                    : formatAmount(it.unit, it.amounts[sz])}
                                 </td>
                               ))}
                             </tr>

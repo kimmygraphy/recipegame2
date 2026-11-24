@@ -6,7 +6,7 @@ from openpyxl import load_workbook
 
 SIZE_COLS = ["R", "L", "M"]
 ESPRESSO_MAP = {"R": "single", "L": "double"}
-GROUP_ORDER = ["기본 커피", "에스프레소·숏", "시그니처 커피", "아샷추·밀샷추", "에이드·주스", "쉐이크·프라페", "말차·K-드링크", "티", "기타 음료"]
+GROUP_ORDER = ["기본 커피", "에스프레소·숏", "시그니처 커피", "아샷추·밀샷추", "에이드·주스", "쉐이크·프라페", "말차·K-드링크", "티", "홀리데이", "기타 음료"]
 
 def parse_spoon(v):
     """'3T 1t' -> {'T':3,'t':1}"""
@@ -60,7 +60,7 @@ def main(src, dst):
             amounts[key] = parse_spoon(v) if unit == "T/t" else v
 
         g = r["채점"]
-        if g == "Y":
+        if g in ("Y", "체크"):
             grade_sizes = list(amounts.keys()) or sizes
         elif g == "N":
             grade_sizes = []
@@ -68,7 +68,8 @@ def main(src, dst):
             grade_sizes = [s for s in SIZE_COLS if s in g]
 
         # 양 표기가 아예 없는 재료는 항상 '넣었는지만' 채점
-        presence_only = unit == "-" or not amounts
+        # 채점 칸이 "체크"면 이 메뉴에서만 넣었는지만 채점 (양은 정답 보기용으로 남김)
+        presence_only = unit == "-" or not amounts or g == "체크"
 
         m["items"].append({
             "label": label, "ingredient": base, "unit": unit,
