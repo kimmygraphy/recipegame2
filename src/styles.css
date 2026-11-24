@@ -254,3 +254,34 @@ tr.is-hit td { background: #eef3fb; }
 .picker-list li.is-hi { background: #eef3fb; }
 .picker-list li.is-sel { font-weight: 700; }
 .picker-list .picker-empty { color: var(--muted); cursor: default; }
+
+/* 레시피 편집 */
+.book-count-row { display: flex; align-items: center; justify-content: space-between; }
+.ed-open { width: 100%; margin-top: 10px; min-height: 44px; }
+.ed-card { background: var(--paper); border-radius: var(--radius-lg); padding: 14px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 12px; }
+.ed-h2 { font-size: 1rem; margin: 18px 2px 8px; }
+.ed-field { display: flex; flex-direction: column; gap: 4px; }
+.ed-field > span, .ed-unit > span, .ed-amt > span { font-size: 0.8rem; color: var(--muted); font-weight: 600; }
+.ed-field input, .ed-inline input, .ed-amounts input, .ed-amounts select {
+  min-height: 44px; padding: 8px 10px; border: 1.5px solid var(--counter-deep); border-radius: var(--radius-sm); background: var(--paper); width: 100%;
+}
+.ed-checks { display: flex; flex-direction: column; gap: 6px; font-size: 0.9rem; }
+.ed-checks label { display: flex; align-items: center; gap: 8px; cursor: pointer; min-height: 32px; }
+.ed-checks input { width: 20px; height: 20px; accent-color: var(--ink); flex: none; }
+.ed-row-head { display: grid; grid-template-columns: 24px 1fr auto; gap: 8px; align-items: center; }
+.ed-row-tools { display: flex; gap: 4px; }
+.ed-row-tools button { width: 36px; height: 40px; border: 1.5px solid var(--counter-deep); background: var(--paper); border-radius: var(--radius-sm); cursor: pointer; }
+.ed-row-tools button:disabled { opacity: 0.35; cursor: default; }
+.ed-row-tools .danger { color: var(--bad); }
+.ed-amounts { display: grid; grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)); gap: 8px; }
+.ed-unit, .ed-amt { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.ed-inline { display: flex; gap: 8px; }
+.ed-inline input { flex: 1; min-width: 0; }
+.ed-inline button { flex: none; min-height: 44px; padding: 0 14px; }
+.danger-text { color: var(--bad) !important; }
+.ing-add { margin: 4px 0 6px; }
+.ing-msg { margin: 0 2px 8px; }
+.ing-edit { display: flex; flex-direction: column; gap: 6px; padding: 0 14px 12px 0; }
+.ing-edit .link { align-self: flex-start; padding-left: 0; }
+.download-card { background: var(--paper); border-radius: var(--radius-lg); padding: 14px; margin: 12px 0; }
+.download-card p { margin: 0 0 10px; }

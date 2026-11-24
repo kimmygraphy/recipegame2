@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
 import { validateData } from '../lib/data'
+import { downloadJson } from '../lib/edit'
 
 export default function DataScreen({ current, onLoad, onClear, onBack }) {
   const fileRef = useRef(null)
@@ -44,7 +45,7 @@ export default function DataScreen({ current, onLoad, onClear, onBack }) {
 
       <section className="intro">
         <p>
-          랜덤 주문을 받고, 잔마다 재료의 위치와 양을 입력해서 레시피를 외우는 연습 도구예요.
+          랜덤 주문을 받고, 잔마다 재료와 양을 입력해서 레시피를 외우는 연습 도구예요.
         </p>
         <p className="hint">
           레시피 파일은 이 기기의 브라우저에만 저장되고, 어디로도 전송되지 않아요.
@@ -54,10 +55,32 @@ export default function DataScreen({ current, onLoad, onClear, onBack }) {
       {current && (
         <section className="current">
           <p>
-            지금 데이터: {current._source === 'demo' ? '데모' : '업로드한 파일'}, 메뉴 {current.menus.length}개
+            지금 데이터: {current._source === 'demo' ? '데모' : current._source === 'edited' ? '업로드한 파일 + 앱에서 수정' : '업로드한 파일'}, 메뉴 {current.menus.length}개
           </p>
           <button className="secondary" onClick={onClear}>
             이 기기에서 데이터 지우기
+          </button>
+        </section>
+      )}
+
+      {current && (
+        <section className="download-card">
+          <p>
+            {current.editedAt
+              ? `앱에서 마지막으로 고친 시각: ${new Date(current.editedAt).toLocaleString('ko-KR')}`
+              : '앱에서 고친 내용은 아직 없어요.'}
+          </p>
+          <p className="hint">
+            앱에서 고친 레시피는 이 기기에만 저장돼요. 내려받아서 보관해두면 다른 기기에 올리거나 브라우저 데이터가 지워져도 되살릴 수 있어요.
+          </p>
+          <button
+            className="primary"
+            onClick={() => {
+              const errs = downloadJson(current)
+              setErrors(errs)
+            }}
+          >
+            지금 레시피 JSON 내려받기
           </button>
         </section>
       )}

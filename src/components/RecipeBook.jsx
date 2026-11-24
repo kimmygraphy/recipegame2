@@ -7,10 +7,13 @@ import { loadMemos, saveMemos, newMemoId } from '../lib/memos'
 import Memos from './Memos'
 import IngredientStatus from './IngredientStatus'
 import { isCheckItem } from '../lib/checks'
+import MenuEditor from './MenuEditor'
+import { upsertMenu, deleteMenu } from '../lib/edit'
 
 const norm = (s) => (s || '').replace(/\s+/g, '').toLowerCase()
 
-export default function RecipeBook({ data, checks, onChecksChange, onChecksReset, onBack }) {
+export default function RecipeBook({ data, checks, onChecksChange, onChecksReset, onDataChange, onRename, onBack }) {
+  const [editing, setEditing] = useState(null) // null | 'new' | 메뉴 id
   const [tab, setTab] = useState('recipes') // recipes | ingredients
   const [query, setQuery] = useState('')
   const [filter, setFilter] = useState('all') // all | fav | 그룹 이름
@@ -38,6 +41,28 @@ export default function RecipeBook({ data, checks, onChecksChange, onChecksReset
       next.has(id) ? next.delete(id) : next.add(id)
       return next
     })
+
+  if (editing) {
+    const menu = editing === 'new' ? null : data.menus.find((m) => m.id === editing)
+    return (
+      <MenuEditor
+        data={data}
+        menu={menu}
+        defaultGroup={filter !== 'all' && filter !== 'fav' ? filter : undefined}
+        onDataChange={onDataChange}
+        onCancel={() => setEditing(null)}
+        onSave={(m) => {
+          onDataChange(upsertMenu(data, m))
+          setOpen((prev) => new Set(prev).add(m.id))
+          setEditing(null)
+        }}
+        onDelete={(id) => {
+          onDataChange(deleteMenu(data, id))
+          setEditing(null)
+        }}
+      />
+    )
+  }
 
   const q = norm(query)
   const list = data.menus
@@ -76,7 +101,7 @@ export default function RecipeBook({ data, checks, onChecksChange, onChecksReset
       </div>
 
       {tab === 'ingredients' ? (
-        <IngredientStatus data={data} checks={checks} onChange={onChecksChange} onReset={onChecksReset} />
+        <IngredientStatus data={data} checks={checks} onChange={onChecksChange} onReset={onChecksReset} onDataChange={onDataChange} onRename={onRename} />
       ) : (
       <>
 
@@ -98,7 +123,12 @@ export default function RecipeBook({ data, checks, onChecksChange, onChecksReset
         </div>
       </div>
 
-      <p className="hint book-count">{list.length}개</p>
+      <div className="book-count-row">
+        <p className="hint book-count">{list.length}개</p>
+        <button className="link" onClick={() => setEditing('new')}>
+          + 새 메뉴
+        </button>
+      </div>
       {!list.length && (
         <p className="book-empty">{filter === 'fav' && !q ? '★를 누르면 여기에 모여요.' : '찾는 레시피가 없어요.'}</p>
       )}
@@ -167,6 +197,9 @@ export default function RecipeBook({ data, checks, onChecksChange, onChecksReset
                       </table>
                     </div>
                     {m.note && <p className="hint">{m.note}</p>}
+                    <button className="secondary ed-open" onClick={() => setEditing(m.id)}>
+                      레시피 수정
+                    </button>
                     <Memos
                       memos={memos[m.id] || []}
                       onAdd={(text) => updateMemos(m.id, (l) => [...l, { id: newMemoId(), text, at: Date.now() }])}

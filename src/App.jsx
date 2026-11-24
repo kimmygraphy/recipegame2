@@ -3,6 +3,7 @@ import { loadData, saveData, clearData } from './lib/data'
 import { makeOrder, newCupInput } from './lib/order'
 import { loadSettings, saveSettings } from './lib/settings'
 import { gradeOrder } from './lib/grade'
+import { renameIngredient } from './lib/edit'
 import { loadChecks, saveChecks, resetChecks } from './lib/checks'
 import DataScreen from './components/DataScreen'
 import Ticket from './components/Ticket'
@@ -46,6 +47,27 @@ export default function App() {
     startOrder(next)
   }
 
+  // 앱 안에서 레시피·재료를 고쳤을 때: 저장하고, 지금 주문에 없어진 메뉴가 있으면 새 주문
+  function handleEdit(next) {
+    const source = data?._source === 'demo' ? 'demo' : 'edited'
+    saveData(next, source)
+    const d = { ...next, _source: source }
+    setData(d)
+    if (order && order.cups.some((c) => !d.menus.some((m) => m.id === c.menuId))) startOrder(d)
+  }
+
+  // 재료 이름 변경: 레시피 전체 + 이 기기의 체크 재료 설정까지 같이 바꿈
+  function handleRename(from, to) {
+    const res = renameIngredient(data, from, to)
+    if (res.error) return res.error
+    handleEdit(res.data)
+    const swap = (set) => new Set([...set].map((x) => (x === from ? to.trim() : x)))
+    const next = { check: swap(checks.check), blend: swap(checks.blend) }
+    saveChecks(next)
+    setChecks(next)
+    return null
+  }
+
   function handleClear() {
     clearData()
     setData(null)
@@ -76,6 +98,8 @@ export default function App() {
           resetChecks()
           setChecks(loadChecks(data))
         }}
+        onDataChange={handleEdit}
+        onRename={handleRename}
         onBack={() => setShowBook(false)}
       />
     )
